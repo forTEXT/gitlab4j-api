@@ -131,6 +131,52 @@ public interface Constants {
         }
     }
 
+    /** Enum to use for ordering the results of getPackages(). */
+    public enum PackageOrderBy {
+
+        NAME, CREATED_AT, VERSION, TYPE, PROJECT_PATH;
+
+        private static JacksonJsonEnumHelper<PackageOrderBy> enumHelper = new JacksonJsonEnumHelper<>(PackageOrderBy.class);
+
+        @JsonCreator
+        public static PackageOrderBy forValue(String value) {
+            return enumHelper.forValue(value);
+        }
+
+        @JsonValue
+        public String toValue() {
+            return (enumHelper.toString(this));
+        }
+
+        @Override
+        public String toString() {
+            return (enumHelper.toString(this));
+        }
+    }
+
+    /** Enum to use for filtering the results of getPackages(). */
+    public enum PackageStatus {
+
+        DEFAULT, HIDDEN, PROCESSING;
+
+        private static JacksonJsonEnumHelper<PackageStatus> enumHelper = new JacksonJsonEnumHelper<>(PackageStatus.class);
+
+        @JsonCreator
+        public static PackageStatus forValue(String value) {
+            return enumHelper.forValue(value);
+        }
+
+        @JsonValue
+        public String toValue() {
+            return (enumHelper.toString(this));
+        }
+
+        @Override
+        public String toString() {
+            return (enumHelper.toString(this));
+        }
+    }
+
     /** Enum to use for ordering the results of getProjects(). */
     public enum ProjectOrderBy {
 
@@ -229,6 +275,28 @@ public interface Constants {
 
         @JsonCreator
         public static TagOrderBy forValue(String value) {
+            return enumHelper.forValue(value);
+        }
+
+        @JsonValue
+        public String toValue() {
+            return (enumHelper.toString(this));
+        }
+
+        @Override
+        public String toString() {
+            return (enumHelper.toString(this));
+        }
+    }
+
+    /** Enum to use for ordering the results of getDeployments. */
+    public static enum DeploymentOrderBy {
+
+        ID, IID, CREATED_AT, UPDATED_AT, REF;
+        private static JacksonJsonEnumHelper<DeploymentOrderBy> enumHelper = new JacksonJsonEnumHelper<>(DeploymentOrderBy.class);
+
+        @JsonCreator
+        public static DeploymentOrderBy forValue(String value) {
             return enumHelper.forValue(value);
         }
 
@@ -783,7 +851,9 @@ public interface Constants {
 
     /** Enum to use for specifying the status of a deployment. */
     public enum DeploymentStatus {
-
+    /**
+     * After some tests, {@link #CREATED} value is not a valid value.
+     */
 	CREATED, RUNNING, SUCCESS, FAILED, CANCELED;
 
         private static JacksonJsonEnumHelper<DeploymentStatus> enumHelper = new JacksonJsonEnumHelper<>(DeploymentStatus.class);
@@ -812,6 +882,29 @@ public interface Constants {
 
         @JsonCreator
         public static DeployTokenScope forValue(String value) {
+            return enumHelper.forValue(value);
+        }
+
+        @JsonValue
+        public String toValue() {
+            return (enumHelper.toString(this));
+        }
+
+        @Override
+        public String toString() {
+            return (enumHelper.toString(this));
+        }
+    }
+
+    /** Enum for the build_git_strategy of the project instance. */
+    enum SquashOption {
+
+        NEVER, ALWAYS, DEFAULT_ON, DEFAULT_OFF;
+
+        private static JacksonJsonEnumHelper<SquashOption> enumHelper = new JacksonJsonEnumHelper<>(SquashOption.class);
+
+        @JsonCreator
+        public static SquashOption forValue(String value) {
             return enumHelper.forValue(value);
         }
 

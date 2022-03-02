@@ -58,6 +58,7 @@ public class GitLabApi implements AutoCloseable {
     private ContainerRegistryApi containerRegistryApi;
     private DiscussionsApi discussionsApi;
     private DeployKeysApi deployKeysApi;
+    private DeploymentsApi deploymentsApi;
     private DeployTokensApi deployTokensApi;
     private EnvironmentsApi environmentsApi;
     private EpicsApi epicsApi;
@@ -84,6 +85,7 @@ public class GitLabApi implements AutoCloseable {
     private RepositoryApi repositoryApi;
     private RepositoryFileApi repositoryFileApi;
     private ResourceLabelEventsApi resourceLabelEventsApi;
+    private ResourceStateEventsApi resourceStateEventsApi;
     private RunnersApi runnersApi;
     private SearchApi searchApi;
     private ServicesApi servicesApi;
@@ -962,6 +964,25 @@ public class GitLabApi implements AutoCloseable {
     }
 
     /**
+     * Gets the DeployKeysApi instance owned by this GitLabApi instance. The DeploymentsApi is used
+     * to perform all deployment related API calls.
+     *
+     * @return the DeploymentsApi instance owned by this GitLabApi instance
+     */
+    public DeploymentsApi getDeploymentsApi() {
+
+        if (deploymentsApi == null) {
+            synchronized (this) {
+                if (deploymentsApi == null) {
+                    deploymentsApi = new DeploymentsApi(this);
+                }
+            }
+        }
+
+        return (deploymentsApi);
+    }
+
+    /**
      * Gets the DeployTokensApi instance owned by this GitLabApi instance. The DeployTokensApi is used
      * to perform all deploy token related API calls.
      *
@@ -1466,6 +1487,25 @@ public class GitLabApi implements AutoCloseable {
         }
 
         return (resourceLabelEventsApi);
+    }
+
+    /**
+     * Gets the ResourceStateEventsApi instance owned by this GitLabApi instance. The ResourceStateEventsApi
+     * is used to perform all Resource State Events related API calls.
+     *
+     * @return the ResourceStateEventsApi instance owned by this GitLabApi instance
+     */
+    public ResourceStateEventsApi getResourceStateEventsApi() {
+
+        if (resourceStateEventsApi == null) {
+            synchronized (this) {
+                if (resourceStateEventsApi == null) {
+                    resourceStateEventsApi = new ResourceStateEventsApi(this);
+                }
+            }
+        }
+
+        return (resourceStateEventsApi);
     }
 
     /**

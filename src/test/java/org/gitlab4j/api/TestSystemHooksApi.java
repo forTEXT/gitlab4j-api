@@ -66,9 +66,10 @@ public class TestSystemHooksApi extends AbstractIntegrationTest {
             assertFalse(hook.getTagPushEvents());
             assertFalse(hook.getMergeRequestsEvents());
 
-            // TODO: Attribute "repository_update_events" is not being honored by GitLab API as per issue
-            //       https://gitlab.com/gitlab-org/gitlab/-/issues/335129
-            //       Revisit and update this test if/when the GitLab API/documentation is fixed
+            // Attribute "repository_update_events" appears to default to true
+            // It was not being honored by the GitLab API before, when explicitly set to false as below, as per the
+            // following issue (which remains unresolved at time of writing, even though the problem seems to have been
+            // fixed): https://gitlab.com/gitlab-org/gitlab/-/issues/335129
             assertTrue(hook.getRepositoryUpdateEvents());
 
             assertTrue(hook.getEnableSslVerification());
@@ -90,12 +91,7 @@ public class TestSystemHooksApi extends AbstractIntegrationTest {
             assertFalse(updatedHook.getPushEvents());
             assertTrue(updatedHook.getTagPushEvents());
             assertTrue(updatedHook.getMergeRequestsEvents());
-
-            // TODO: Attribute "repository_update_events" is not being honored by GitLab API as per issue
-            //       https://gitlab.com/gitlab-org/gitlab/-/issues/335129
-            //       Revisit and update this test if/when the GitLab API/documentation is fixed
-            assertTrue(updatedHook.getRepositoryUpdateEvents());
-
+            assertFalse(updatedHook.getRepositoryUpdateEvents());
             assertFalse(updatedHook.getEnableSslVerification());
         } finally {
             // Ensure we remove the hook we added even if we had failures

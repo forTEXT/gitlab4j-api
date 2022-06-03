@@ -101,7 +101,7 @@ public final class AccessTokenUtils {
     protected static final String REVOKE_PERSONAL_ACCESS_TOKEN_REGEX = "href=\\\"([^\\\"]*)\\\"";
     protected static final Pattern REVOKE_PERSONAL_ACCESS_TOKEN_PATTERN = Pattern.compile(REVOKE_PERSONAL_ACCESS_TOKEN_REGEX);
 
-    protected static final String FEED_TOKEN_REGEX = "name=\\\"feed_token\\\".*value=\\\"([^\\\"]*)\\\".*\\/>";
+    protected static final String FEED_TOKEN_REGEX = "<div data-tokens-data=\\\"\\{.*&quot;feed_token&quot;:\\{.*?&quot;token&quot;:&quot;(.*?)&quot;,";
     protected static final Pattern FEED_TOKEN_PATTERN = Pattern.compile(FEED_TOKEN_REGEX);
 
     protected static final String HEALTH_CHECK_ACCESS_TOKEN_REGEX = "id=\"health-check-token\">([^<]*)<\\/code>";
@@ -162,7 +162,7 @@ public final class AccessTokenUtils {
              * Step 2: Go to the /profile/personal_access_tokens page to fetch a           *
              * new authenticity token.                                                     *
              *******************************************************************************/
-            String urlString = baseUrl + "/profile/personal_access_tokens";
+            String urlString = baseUrl + "/-/profile/personal_access_tokens";
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", USER_AGENT);
@@ -170,21 +170,8 @@ public final class AccessTokenUtils {
             connection.setReadTimeout(10000);
             connection.setConnectTimeout(10000);
 
-            // Check if a redirect was provided, follow it if so (profile URLs are prefixed with -/ now)
-            int responseCode = connection.getResponseCode();
-            if (responseCode == 301) {
-                // Follow the redirect with the provided session cookie
-                String profileRedirectUrl = connection.getHeaderField("Location");
-                url = new URL(profileRedirectUrl);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestProperty("User-Agent", USER_AGENT);
-                connection.setRequestProperty("Cookie", cookies);
-                connection.setReadTimeout(10000);
-                connection.setConnectTimeout(10000);
-            }
-
             // Make sure the response code is 200, otherwise there is a failure
-            responseCode = connection.getResponseCode();
+            int responseCode = connection.getResponseCode();
             if (responseCode != 200) {
                 throw new GitLabApiException("Failure loading Access Tokens page, aborting!");
             }
@@ -327,7 +314,7 @@ public final class AccessTokenUtils {
              * Step 2: Go to the /profile/personal_access_tokens page and fetch the        *
              *         authenticity token.                                                 *
              *******************************************************************************/
-            String urlString = baseUrl + "/profile/personal_access_tokens";
+            String urlString = baseUrl + "/-/profile/personal_access_tokens";
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", USER_AGENT);
@@ -335,21 +322,8 @@ public final class AccessTokenUtils {
             connection.setReadTimeout(10000);
             connection.setConnectTimeout(10000);
 
-            // Check if a redirect was provided, follow it if so (profile URLs are prefixed with -/ now)
-            int responseCode = connection.getResponseCode();
-            if (responseCode == 301) {
-                // Follow the redirect with the provided session cookie
-                String profileRedirectUrl = connection.getHeaderField("Location");
-                url = new URL(profileRedirectUrl);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestProperty("User-Agent", USER_AGENT);
-                connection.setRequestProperty("Cookie", cookies);
-                connection.setReadTimeout(10000);
-                connection.setConnectTimeout(10000);
-            }
-
             // Make sure the response code is 200, otherwise there is a failure
-            responseCode = connection.getResponseCode();
+            int responseCode = connection.getResponseCode();
             if (responseCode != 200) {
                 throw new GitLabApiException("Failure loading Access Tokens page, aborting!");
             }
@@ -483,7 +457,7 @@ public final class AccessTokenUtils {
              * Step 2: Go to the /profile/personal_access_tokens page and fetch the        *
              *         Feed token.                                                         *
              *******************************************************************************/
-            String urlString = baseUrl + "/profile/personal_access_tokens";
+            String urlString = baseUrl + "/-/profile/personal_access_tokens";
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", USER_AGENT);
@@ -491,21 +465,8 @@ public final class AccessTokenUtils {
             connection.setReadTimeout(10000);
             connection.setConnectTimeout(10000);
 
-            // Check if a redirect was provided, follow it if so (profile URLs are prefixed with -/ now)
-            int responseCode = connection.getResponseCode();
-            if (responseCode == 301) {
-                // Follow the redirect with the provided session cookie
-                String profileRedirectUrl = connection.getHeaderField("Location");
-                url = new URL(profileRedirectUrl);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestProperty("User-Agent", USER_AGENT);
-                connection.setRequestProperty("Cookie", cookies);
-                connection.setReadTimeout(10000);
-                connection.setConnectTimeout(10000);
-            }
-
             // Make sure the response code is 200, otherwise there is a failure
-            responseCode = connection.getResponseCode();
+            int responseCode = connection.getResponseCode();
             if (responseCode != 200) {
                 throw new GitLabApiException("Failure loading Access Tokens page, aborting!");
             }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -95,6 +96,7 @@ public class GitLabApi implements AutoCloseable {
     private TodosApi todosApi;
     private UserApi userApi;
     private WikisApi wikisApi;
+    private KeysApi keysApi;
 
     /**
      * Get the GitLab4J shared Logger instance.
@@ -447,7 +449,7 @@ public class GitLabApi implements AutoCloseable {
      */
     public final GitLabApi duplicate() {
 
-        Integer sudoUserId = this.getSudoAsId();
+        Long sudoUserId = this.getSudoAsId();
         GitLabApi gitLabApi = new GitLabApi(apiVersion, gitLabServerUrl,
                 getTokenType(), getAuthToken(), getSecretToken(), clientConfigProperties);
         if (sudoUserId != null) {
@@ -659,7 +661,7 @@ public class GitLabApi implements AutoCloseable {
             throw new GitLabApiException("the specified username was not found");
         }
 
-        Integer sudoAsId = user.getId();
+        Long sudoAsId = user.getId();
         apiClient.setSudoAsId(sudoAsId);
     }
 
@@ -677,7 +679,7 @@ public class GitLabApi implements AutoCloseable {
      * @param sudoAsId the ID of the user to sudo as, null will turn off sudo
      * @throws GitLabApiException if any exception occurs
      */
-    public void setSudoAsId(Integer sudoAsId) throws GitLabApiException {
+    public void setSudoAsId(Long sudoAsId) throws GitLabApiException {
 
         if (sudoAsId == null) {
             apiClient.setSudoAsId(null);
@@ -698,7 +700,7 @@ public class GitLabApi implements AutoCloseable {
      *
      * @return the current sudo as ID, will return null if not in sudo mode
      */
-    public Integer getSudoAsId() {
+    public Long getSudoAsId() {
         return (apiClient.getSudoAsId());
     }
 
@@ -709,6 +711,14 @@ public class GitLabApi implements AutoCloseable {
      */
     public String getAuthToken() {
         return (apiClient.getAuthToken());
+    }
+
+    /**
+     * Set auth token supplier for gitlab api client.
+     * @param authTokenSupplier - supplier which provide actual auth token
+     */
+    public void setAuthTokenSupplier(Supplier<String> authTokenSupplier) {
+        apiClient.setAuthTokenSupplier(authTokenSupplier);
     }
 
     /**
@@ -1673,6 +1683,21 @@ public class GitLabApi implements AutoCloseable {
 
         return wikisApi;
     }
+
+    /**
+     * Gets the KeysApi instance owned by this GitLabApi instance. The KeysApi is used to look up users by their ssh key signatures
+     *
+     * @return the KeysApi instance owned by this GitLabApi instance
+     */
+    public KeysApi getKeysAPI() {
+        synchronized (this) {
+            if (keysApi == null) {
+                keysApi = new KeysApi(this);
+            }
+        }
+        return keysApi;
+    }
+
 
     /**
      * Create and return an Optional instance associated with a GitLabApiException.

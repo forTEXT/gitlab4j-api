@@ -163,7 +163,7 @@ public class TestTagsApi extends AbstractIntegrationTest {
 
     @Test
     public void testGetTagsInAscOrder() throws GitLabApiException {
-        List<Tag> tags = gitLabApi.getTagsApi().getTags(testProject, null, SortOrder.ASC, null);
+        List<Tag> tags = gitLabApi.getTagsApi().getTags(testProject, Constants.TagOrderBy.NAME, SortOrder.ASC, null);
         assertNotNull(tags);
         assertTrue(tags.size() > 1);
         assertTrue(tags.get(0).getName().compareTo(tags.get(1).getName()) < 0);
@@ -171,7 +171,7 @@ public class TestTagsApi extends AbstractIntegrationTest {
 
     @Test
     public void testGetTagsInDescOrder() throws GitLabApiException {
-        List<Tag> tags = gitLabApi.getTagsApi().getTags(testProject, null, SortOrder.DESC, null);
+        List<Tag> tags = gitLabApi.getTagsApi().getTags(testProject, Constants.TagOrderBy.NAME, SortOrder.DESC, null);
         assertNotNull(tags);
         assertTrue(tags.size() > 1);
         assertTrue(tags.get(0).getName().compareTo(tags.get(1).getName()) > 0);

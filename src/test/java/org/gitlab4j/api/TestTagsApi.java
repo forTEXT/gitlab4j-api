@@ -18,6 +18,7 @@ import org.gitlab4j.api.models.Tag;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -107,6 +108,7 @@ public class TestTagsApi extends AbstractIntegrationTest {
     }
 
     @Test
+    @Ignore("There is no more tags API endpoint to create a release for an existing tag")
     public void testCreateAndUpdateRelease() throws GitLabApiException {
 
         Tag testTag = gitLabApi.getTagsApi().createTag(testProject, TEST_TAG_NAME_1, "master");

@@ -178,14 +178,12 @@ public class TestDeploymentsApi extends AbstractIntegrationTest {
 
         assertTrue("Commits list should not be empty.", commits.size() > 0);
 
-        for (int i = 0; i < 20; i++) {
-            gitLabApi.getDeploymentsApi().addDeployment(testProject,
-                environment,
-                commits.get(0).getId(),
-                testProject.getDefaultBranch(),
-                false,
-                DeploymentStatus.SUCCESS);
-        }
+        gitLabApi.getDeploymentsApi().addDeployment(testProject,
+            environment,
+            commits.get(0).getId(),
+            testProject.getDefaultBranch(),
+            false,
+            DeploymentStatus.SUCCESS);
 
         gitLabApi.getDeploymentsApi().addDeployment(testProject,
             environment + "-other",
@@ -194,15 +192,15 @@ public class TestDeploymentsApi extends AbstractIntegrationTest {
             false,
             DeploymentStatus.SUCCESS);
 
-        Pager<Deployment> pager = gitLabApi.getDeploymentsApi().getProjectDeployments(testProject, 2);
+        Pager<Deployment> pager = gitLabApi.getDeploymentsApi().getProjectDeployments(testProject, 1);
         while (pager.hasNext()) {
             pager.next();
-            assertTrue(pager.current().size() == 1 || pager.current().size() == 2);
+            assertEquals(1, pager.current().size());
         }
 
         List<Deployment> deployments = gitLabApi.getDeploymentsApi().getProjectDeployments(testProject);
-        int unfilteredeploymentNb = deployments.size();
-        assertTrue(unfilteredeploymentNb >= 10);
+        int unfilteredDeploymentsNo = deployments.size();
+        assertEquals(2, unfilteredDeploymentsNo);
 
         DeploymentFilter deploymentFilter = new DeploymentFilter();
         deploymentFilter.setEnvironment(environment);
@@ -210,7 +208,7 @@ public class TestDeploymentsApi extends AbstractIntegrationTest {
         Pager<Deployment> filteredPager = gitLabApi.getDeploymentsApi().getProjectDeployments(testProject, deploymentFilter);
         while (filteredPager.hasNext()) {
             filteredPager.next();
-            assertTrue(filteredPager.current().size() > 1 && filteredPager.current().size() < unfilteredeploymentNb);
+            assertTrue(filteredPager.current().size() == 1 && filteredPager.current().size() < unfilteredDeploymentsNo);
         }
 
         deploymentFilter.setEnvironment("none");
@@ -218,14 +216,14 @@ public class TestDeploymentsApi extends AbstractIntegrationTest {
         filteredPager = gitLabApi.getDeploymentsApi().getProjectDeployments(testProject, deploymentFilter);
         if (filteredPager.hasNext()) {
             filteredPager.next();
-            assertTrue("Should be no deployments for environment `none`", filteredPager.current().size() == 0);
+            assertEquals("Should be no deployments for environment `none`", 0, filteredPager.current().size());
         }
 
-        Stream<Deployment> projectDeploymentsStream = gitLabApi.getDeploymentsApi().getProjectDeploymentsStream(testProject);
-        assertTrue(projectDeploymentsStream.count() >= 10);
+        Stream<Deployment> unfilteredProjectDeploymentsStream = gitLabApi.getDeploymentsApi().getProjectDeploymentsStream(testProject);
+        assertEquals(2, unfilteredProjectDeploymentsStream.count());
 
-        projectDeploymentsStream = gitLabApi.getDeploymentsApi().getProjectDeploymentsStream(testProject, deploymentFilter);
-        assertEquals(0L, projectDeploymentsStream.count());
+        Stream<Deployment> filteredProjectDeploymentsStream = gitLabApi.getDeploymentsApi().getProjectDeploymentsStream(testProject, deploymentFilter);
+        assertEquals(0L, filteredProjectDeploymentsStream.count());
 
     }
 

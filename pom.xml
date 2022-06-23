@@ -7,10 +7,10 @@
 	<groupId>org.gitlab4j</groupId>
 	<artifactId>gitlab4j-api</artifactId>
 	<packaging>jar</packaging>
-	<version>5.0.1</version>
+	<version>5.0.1-CATMA</version>
 	<name>GitLab4J-API - GitLab API Java Client</name>
 	<description>GitLab4J-API (gitlab4j-api) provides a full featured Java client library for working with GitLab repositories and servers via the GitLab REST API.</description>
-	<url>https://github.com/gitlab4j/gitlab4j-api</url>
+	<url>https://github.com/forTEXT/gitlab4j-api</url>
 
 	<distributionManagement>
 		<snapshotRepository>
@@ -41,6 +41,11 @@
 			<id>gdesaintmartinlacaze</id>
 			<name>Gautier de Saint Martin Lacaze</name>
 			<email>gautier@jabby-techs.fr</email>
+		</developer>
+		<developer>
+			<id>maltem-za</id>
+			<name>Malte Meister</name>
+			<email>malte.meister@gmx.net</email>
 		</developer>
 	</developers>
 
@@ -77,10 +82,10 @@
 	</properties>
 
 	<scm>
-		<url>git@github.com:gitlab4j/gitlab4j-api.git</url>
-		<connection>scm:git:git@github.com:gitlab4j/gitlab4j-api.git</connection>
-		<developerConnection>scm:git:git@github.com:gitlab4j/gitlab4j-api.git</developerConnection>
-		<tag>gitlab4j-api-5.0.1</tag>
+		<url>git@github.com:forTEXT/gitlab4j-api.git</url>
+		<connection>scm:git:git@github.com:forTEXT/gitlab4j-api.git</connection>
+		<developerConnection>scm:git:git@github.com:forTEXT/gitlab4j-api.git</developerConnection>
+		<tag>gitlab4j-api-5.0.1-CATMA</tag>
 	</scm>
 
 	<build>

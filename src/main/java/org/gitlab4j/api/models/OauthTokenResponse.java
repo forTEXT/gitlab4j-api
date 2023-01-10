@@ -1,9 +1,12 @@
 package org.gitlab4j.api.models;
 
+import java.util.Date;
+
 public class OauthTokenResponse {
 
     private String accessToken;
     private String tokenType;
+    private Integer expiresIn;
     private String refreshToken;
     private String scope;
     private Long createdAt;
@@ -22,6 +25,14 @@ public class OauthTokenResponse {
 
     public void setTokenType(String tokenType) {
         this.tokenType = tokenType;
+    }
+
+    public Integer getExpiresIn() {
+        return expiresIn;
+    }
+
+    public void setExpiresIn(Integer expiresIn) {
+        this.expiresIn = expiresIn;
     }
 
     public String getRefreshToken() {
@@ -46,5 +57,24 @@ public class OauthTokenResponse {
 
     public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;
+    }
+
+
+    public Date getExpiresAt() {
+        if (expiresIn == null) {
+            return null;
+        }
+
+        long expiryTimeInSecondsSinceEpoch = createdAt + expiresIn;
+        return new Date(expiryTimeInSecondsSinceEpoch * 1000);
+    }
+
+    public boolean isExpired() {
+        Date expiresAt = getExpiresAt();
+        if (expiresAt == null) {
+            return false;
+        }
+
+        return new Date().after(expiresAt);
     }
 }

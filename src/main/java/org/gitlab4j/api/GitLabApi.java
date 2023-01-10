@@ -48,6 +48,7 @@ public class GitLabApi implements AutoCloseable {
     private ApiVersion apiVersion;
     private String gitLabServerUrl;
     private Map<String, Object> clientConfigProperties;
+    private OauthTokenResponse oauthTokenResponse;
     private int defaultPerPage = DEFAULT_PER_PAGE;
 
     private ApplicationsApi applicationsApi;
@@ -286,23 +287,65 @@ public class GitLabApi implements AutoCloseable {
             gitLabApi.setIgnoreCertificateErrors(true);
         }
 
-        class Oauth2Api extends AbstractApi {
-            Oauth2Api(GitLabApi gitlabApi) {
-                super(gitlabApi);
-            }
-        }
-
         try (Oauth2LoginStreamingOutput stream = new Oauth2LoginStreamingOutput(username, password)) {
 
             Response response = new Oauth2Api(gitLabApi).post(Response.Status.OK, stream, MediaType.APPLICATION_JSON, "oauth", "token");
             OauthTokenResponse oauthToken = response.readEntity(OauthTokenResponse.class);
-            gitLabApi = new GitLabApi(apiVersion, url, TokenType.OAUTH2_ACCESS, oauthToken.getAccessToken(), secretToken, clientConfigProperties);
+            gitLabApi = new GitLabApi(apiVersion, url, TokenType.OAUTH2_ACCESS, oauthToken, secretToken, clientConfigProperties);
             if (ignoreCertificateErrors) {
                 gitLabApi.setIgnoreCertificateErrors(true);
             }
 
             return (gitLabApi);
         }
+    }
+
+    public boolean isOauth2AccessTokenExpired() {
+        return apiClient.getTokenType() == TokenType.OAUTH2_ACCESS
+            && oauthTokenResponse != null
+            && oauthTokenResponse.isExpired();
+    }
+
+    protected void setOauth2AccessTokenExpiredForTesting() {
+        oauthTokenResponse.setExpiresIn(0);
+    }
+
+    public void oauth2RefreshAccessToken() throws GitLabApiException {
+        if (!isOauth2AccessTokenExpired()) {
+            return;
+        }
+
+        // create a GitLabApi instance set up to be used to do an OAuth2 token refresh
+        GitLabApi gitLabApi = new GitLabApi(apiVersion, gitLabServerUrl, null);
+        gitLabApi.apiClient.setHostUrlToBaseUrl();
+        gitLabApi.setIgnoreCertificateErrors(getIgnoreCertificateErrors());
+
+        class Oauth2AccessTokenRefreshRequestBody {
+            public final String grantType = "refresh_token";
+            public final String refreshToken;
+
+            Oauth2AccessTokenRefreshRequestBody(String refreshToken) {
+                this.refreshToken = refreshToken;
+            }
+        }
+
+        Response response = new Oauth2Api(gitLabApi).post(
+            Response.Status.OK,
+            new Oauth2AccessTokenRefreshRequestBody(oauthTokenResponse.getRefreshToken()),
+            "oauth", "token"
+        );
+        OauthTokenResponse oauthToken = response.readEntity(OauthTokenResponse.class);
+
+        oauthTokenResponse = oauthToken;
+
+        apiClient = new GitLabApiClient(
+            apiVersion,
+            gitLabServerUrl,
+            TokenType.OAUTH2_ACCESS,
+            oauthToken.getAccessToken(),
+            apiClient.getSecretToken(),
+            clientConfigProperties
+        );
     }
 
     /**
@@ -440,6 +483,18 @@ public class GitLabApi implements AutoCloseable {
         this.gitLabServerUrl = hostUrl;
         this.clientConfigProperties = clientConfigProperties;
         apiClient = new GitLabApiClient(apiVersion, hostUrl, tokenType, authToken, secretToken, clientConfigProperties);
+    }
+
+    public GitLabApi(
+        ApiVersion apiVersion,
+        String hostUrl,
+        TokenType tokenType,
+        OauthTokenResponse oauthTokenResponse,
+        String secretToken,
+        Map<String, Object> clientConfigProperties
+    ) {
+        this(apiVersion, hostUrl, tokenType, oauthTokenResponse.getAccessToken(), secretToken, clientConfigProperties);
+        this.oauthTokenResponse = oauthTokenResponse;
     }
 
     /**

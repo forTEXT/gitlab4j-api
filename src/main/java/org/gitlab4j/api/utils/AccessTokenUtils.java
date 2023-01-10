@@ -92,10 +92,10 @@ public final class AccessTokenUtils {
     protected static final String NEW_USER_AUTHENTICITY_TOKEN_REGEX = "\"new_user\".*name=\\\"authenticity_token\\\"\\svalue=\\\"([^\\\"]*)\\\"";
     protected static final Pattern NEW_USER_AUTHENTICITY_TOKEN_PATTERN = Pattern.compile(NEW_USER_AUTHENTICITY_TOKEN_REGEX);
 
-    protected static final String AUTHENTICITY_TOKEN_REGEX = "name=\\\"authenticity_token\\\"\\svalue=\\\"([^\\\"]*)\\\"";
+    protected static final String AUTHENTICITY_TOKEN_REGEX = "<meta name=\"csrf-token\" content=\"([^\"]*)\"";
     protected static final Pattern AUTHENTICITY_TOKEN_PATTERN = Pattern.compile(AUTHENTICITY_TOKEN_REGEX);
 
-    protected static final String PERSONAL_ACCESS_TOKEN_REGEX = "name=\\\"created-personal-access-token\\\".*data-clipboard-text=\\\"([^\\\"]*)\\\".*\\/>";
+    protected static final String PERSONAL_ACCESS_TOKEN_REGEX = "\\{\"new_token\":\"([^\"]*)\"";
     protected static final Pattern PERSONAL_ACCESS_TOKEN_PATTERN = Pattern.compile(PERSONAL_ACCESS_TOKEN_REGEX);
 
     protected static final String REVOKE_PERSONAL_ACCESS_TOKEN_REGEX = "href=\\\"([^\\\"]*)\\\"";
@@ -216,32 +216,17 @@ public final class AccessTokenUtils {
             output.flush();
             output.close();
 
-            // Make sure a redirect was provided, otherwise there is a failure
-            responseCode = connection.getResponseCode();
-            if (responseCode != 302) {
-                throw new GitLabApiException("Failure creating personal access token, aborting!");
-            }
-
-            // Follow the redirect with the provided session cookie
-            String redirectUrl = connection.getHeaderField("Location");
-            url = new URL(redirectUrl);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("User-Agent", USER_AGENT);
-            connection.setRequestProperty("Cookie", cookies);
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(10000);
-
             // Make sure the response code is 200, otherwise there is a failure
             responseCode = connection.getResponseCode();
             if (responseCode != 200) {
                 throw new GitLabApiException("Failure creating personal access token, aborting!");
             }
 
-            // Extract the personal access token from the page and return it
+            // Extract the personal access token from the JSON response and return it
             content = getContent(connection);
             matcher = PERSONAL_ACCESS_TOKEN_PATTERN.matcher(content);
             if (!matcher.find()) {
-                throw new GitLabApiException("created-personal-access-token not found, aborting!");
+                throw new GitLabApiException("'new_token' not found in JSON response, aborting!");
             }
 
             String personalAccessToken = matcher.group(1);

@@ -89,7 +89,7 @@ public final class AccessTokenUtils {
     protected static final String USER_AGENT = "GitLab4J Client";
     protected static final String COOKIES_HEADER = "Set-Cookie";
 
-    protected static final String NEW_USER_AUTHENTICITY_TOKEN_REGEX = "\"new_user\".*name=\\\"authenticity_token\\\"\\svalue=\\\"([^\\\"]*)\\\"";
+    protected static final String NEW_USER_AUTHENTICITY_TOKEN_REGEX = "\"new_user\".*name=\"authenticity_token\"\\svalue=\"([^\"]*)\"";
     protected static final Pattern NEW_USER_AUTHENTICITY_TOKEN_PATTERN = Pattern.compile(NEW_USER_AUTHENTICITY_TOKEN_REGEX);
 
     protected static final String AUTHENTICITY_TOKEN_REGEX = "<meta name=\"csrf-token\" content=\"([^\"]*)\"";
@@ -102,7 +102,7 @@ public final class AccessTokenUtils {
         "\\{.*?&quot;name&quot;:&quot;(.*?)&quot;,.*?&quot;scopes&quot;:\\[(.*?)\\],.*?&quot;revoke_path&quot;:&quot;(.*?)&quot;\\}";
     protected static final Pattern REVOKE_PERSONAL_ACCESS_TOKEN_PATTERN = Pattern.compile(REVOKE_PERSONAL_ACCESS_TOKEN_REGEX);
 
-    protected static final String FEED_TOKEN_REGEX = "<div data-tokens-data=\\\"\\{.*&quot;feed_token&quot;:\\{.*?&quot;token&quot;:&quot;(.*?)&quot;,";
+    protected static final String FEED_TOKEN_REGEX = "<div data-tokens-data=\"\\{.*&quot;feed_token&quot;:\\{.*?&quot;token&quot;:&quot;(.*?)&quot;,";
     protected static final Pattern FEED_TOKEN_PATTERN = Pattern.compile(FEED_TOKEN_REGEX);
 
     protected static final String HEALTH_CHECK_ACCESS_TOKEN_REGEX = "id=\"health-check-token\">([^<]*)<\\/code>";

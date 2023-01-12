@@ -560,10 +560,6 @@ public class TestProjectApi extends AbstractIntegrationTest {
     }
 
     @Test
-    @Disabled("Call failing for an unknown reason - see comment in source")
-    // Results in org.gitlab4j.api.GitLabApiException: The following fields have validation errors: path, namespace
-    // Either 'name' OR 'path' are required, and 'name' is being supplied while 'path' is not
-    // 'namespace' is also not being supplied ('namespace_id' which is, is also a valid parameter)
     public void testCreateProjectInNamespace() throws GitLabApiException {
 
         assumeTrue(currentUser != null);

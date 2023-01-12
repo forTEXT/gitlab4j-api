@@ -41,7 +41,6 @@ public class TestResourceStateEventsApi extends AbstractIntegrationTest {
         deleteAllTestIssues();
     }
 
-    @Disabled("should be enabled when CI tests will be run against GitLab 13.2+")
     @Test
     public void testGetCloseReopenIssueEvents() throws GitLabApiException {
         Long projectId = testProject.getId();

@@ -1,5 +1,7 @@
 package org.gitlab4j.api.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Date;
 
 public class OauthTokenResponse {
@@ -60,6 +62,7 @@ public class OauthTokenResponse {
     }
 
 
+    @JsonIgnore
     public Date getExpiresAt() {
         if (expiresIn == null) {
             return null;
@@ -69,6 +72,7 @@ public class OauthTokenResponse {
         return new Date(expiryTimeInSecondsSinceEpoch * 1000);
     }
 
+    @JsonIgnore
     public boolean isExpired() {
         Date expiresAt = getExpiresAt();
         if (expiresAt == null) {

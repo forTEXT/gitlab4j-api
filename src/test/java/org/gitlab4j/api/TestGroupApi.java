@@ -219,7 +219,7 @@ public class TestGroupApi extends AbstractIntegrationTest {
             }
 
             Stream<AccessRequest> requests = gitLabApi.getGroupApi().getAccessRequestsStream(testGroup);
-            assertTrue(requests.anyMatch(r -> r.getId() == userId));
+            assertTrue(requests.anyMatch(r -> r.getId().equals(userId)));
 
             AccessRequest accessRequest = gitLabApi.getGroupApi().approveAccessRequest(testGroup, user.getId(), AccessLevel.DEVELOPER);
             assertNotNull(accessRequest);
@@ -264,7 +264,7 @@ public class TestGroupApi extends AbstractIntegrationTest {
             }
 
             List<AccessRequest> requests = gitLabApi.getGroupApi().getAccessRequests(testGroup);
-            assertTrue(requests.stream().anyMatch(r -> r.getId() == userId));
+            assertTrue(requests.stream().anyMatch(r -> r.getId().equals(userId)));
 
             gitLabApi.getGroupApi().denyAccessRequest(testGroup, userId);
 

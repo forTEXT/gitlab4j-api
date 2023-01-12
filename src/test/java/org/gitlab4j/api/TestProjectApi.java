@@ -807,7 +807,7 @@ public class TestProjectApi extends AbstractIntegrationTest {
             }
 
             Stream<AccessRequest> requests = gitLabApi.getProjectApi().getAccessRequestsStream(testProject);
-            assertTrue(requests.anyMatch(r -> r.getId() == userId));
+            assertTrue(requests.anyMatch(r -> r.getId().equals(userId)));
 
             AccessRequest accessRequest = gitLabApi.getProjectApi().approveAccessRequest(testProject, user.getId(), AccessLevel.DEVELOPER);
             assertNotNull(accessRequest);
@@ -817,7 +817,7 @@ public class TestProjectApi extends AbstractIntegrationTest {
             user = null;
 
             requests = gitLabApi.getProjectApi().getAccessRequestsStream(testProject);
-            assertFalse(requests.anyMatch(r -> r.getId() == userId));
+            assertFalse(requests.anyMatch(r -> r.getId().equals(userId)));
 
         } finally {
             try {
@@ -852,12 +852,12 @@ public class TestProjectApi extends AbstractIntegrationTest {
             }
 
             List<AccessRequest> requests = gitLabApi.getProjectApi().getAccessRequests(testProject);
-            assertTrue(requests.stream().anyMatch(r -> r.getId() == userId));
+            assertTrue(requests.stream().anyMatch(r -> r.getId().equals(userId)));
 
             gitLabApi.getProjectApi().denyAccessRequest(testProject, userId);
 
             requests = gitLabApi.getProjectApi().getAccessRequests(testProject);
-            assertFalse(requests.stream().anyMatch(r -> r.getId() == userId));
+            assertFalse(requests.stream().anyMatch(r -> r.getId().equals(userId)));
 
             user = null;
 

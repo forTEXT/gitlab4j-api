@@ -98,7 +98,8 @@ public final class AccessTokenUtils {
     protected static final String PERSONAL_ACCESS_TOKEN_REGEX = "\\{\"new_token\":\"([^\"]*)\"";
     protected static final Pattern PERSONAL_ACCESS_TOKEN_PATTERN = Pattern.compile(PERSONAL_ACCESS_TOKEN_REGEX);
 
-    protected static final String REVOKE_PERSONAL_ACCESS_TOKEN_REGEX = "href=\\\"([^\\\"]*)\\\"";
+    protected static final String REVOKE_PERSONAL_ACCESS_TOKEN_REGEX =
+        "\\{.*?&quot;name&quot;:&quot;(.*?)&quot;,.*?&quot;scopes&quot;:\\[(.*?)\\],.*?&quot;revoke_path&quot;:&quot;(.*?)&quot;\\}";
     protected static final Pattern REVOKE_PERSONAL_ACCESS_TOKEN_PATTERN = Pattern.compile(REVOKE_PERSONAL_ACCESS_TOKEN_REGEX);
 
     protected static final String FEED_TOKEN_REGEX = "<div data-tokens-data=\\\"\\{.*&quot;feed_token&quot;:\\{.*?&quot;token&quot;:&quot;(.*?)&quot;,";
@@ -325,36 +326,45 @@ public final class AccessTokenUtils {
              * Step 3: Submit the /profile/personal_access_tokens page with the info to    *
              * revoke the first matching personal access token.                            *
              *******************************************************************************/
-            int indexOfTokenName = content.indexOf("<td>" + tokenName + "</td>");
-            if (indexOfTokenName == -1) {
+            String tokensDataAttribute = "data-initial-active-access-tokens";
+            int indexOfStartOfTokensJsonData = content.indexOf(tokensDataAttribute);
+            if (indexOfStartOfTokensJsonData == -1) {
+                throw new GitLabApiException("personal access token not found, aborting!");
+            }
+            indexOfStartOfTokensJsonData += tokensDataAttribute.length() + 2; // attribute name + ="
+
+            content = content.substring(indexOfStartOfTokensJsonData);
+            int indexOfEndOfTokensJsonData = content.indexOf("\"");
+            if (indexOfEndOfTokensJsonData == -1) {
                 throw new GitLabApiException("personal access token not found, aborting!");
             }
 
-            content = content.substring(indexOfTokenName);
-            int indexOfLinkEnd = content.indexOf("</a>");
-            if (indexOfTokenName == -1) {
-                throw new GitLabApiException("personal access token not found, aborting!");
-            }
-
-            content = content.substring(0, indexOfLinkEnd);
-            String scopesText = "";
-            if (scopes != null && scopes.size() > 0) {
-                final StringJoiner joiner = new StringJoiner(", ");
-                scopes.forEach(s -> joiner.add(s.toString()));
-                scopesText = joiner.toString();
-            }
-
-            if (content.indexOf(scopesText) == -1) {
-                throw new GitLabApiException("personal access token not found, aborting!");
-            }
+            content = content.substring(0, indexOfEndOfTokensJsonData);
 
             matcher = REVOKE_PERSONAL_ACCESS_TOKEN_PATTERN.matcher(content);
             if (!matcher.find()) {
                 throw new GitLabApiException("personal access token not found, aborting!");
             }
 
-            String revokePath = matcher.group(1);
-            url = new URL(baseUrl + revokePath);
+            // the first token returned should be the one we want to revoke
+            // iterate over the remaining matches if that changes
+            String foundTokenName = matcher.group(1);
+            String foundTokenScopes = matcher.group(2); // eg: &quot;api&quot;,&quot;sudo&quot;
+            foundTokenScopes = foundTokenScopes.replace("&quot;", "");
+            String foundTokenRevokePath = matcher.group(3);
+
+            String expectedScopesText = "";
+            if (scopes != null && scopes.size() > 0) {
+                final StringJoiner joiner = new StringJoiner(",");
+                scopes.forEach(s -> joiner.add(s.toString()));
+                expectedScopesText = joiner.toString();
+            }
+
+            if (!foundTokenName.equals(tokenName) || !foundTokenScopes.equals(expectedScopesText)) {
+                throw new GitLabApiException("personal access token not found, aborting!");
+            }
+
+            url = new URL(baseUrl + foundTokenRevokePath);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", USER_AGENT);
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -362,12 +372,13 @@ public final class AccessTokenUtils {
             connection.setRequestProperty("Cookie", cookies);
             connection.setReadTimeout(10000);
             connection.setConnectTimeout(10000);
-            connection.setRequestMethod("PUT");
+            connection.setRequestMethod("POST");
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
             // Submit the form
             StringBuilder formData = new StringBuilder();
+            addFormData(formData, "_method", "put");
             addFormData(formData, "authenticity_token", csrfToken);
             connection.setRequestProperty("Content-Length", String.valueOf(formData.length()));
             OutputStream output = connection.getOutputStream();
